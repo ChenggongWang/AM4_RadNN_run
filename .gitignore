@@ -1,0 +1,4 @@
+# ignore .out files
+*.out
+# ignore folder
+.ipynb_checkpoints
