@@ -59,7 +59,6 @@ c96L33_am4p0
 "NN_diag",   "nn_swup_toa",                    "nn_swup_toa",         "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "nn_tdt_lw_clr",                  "nn_tdt_lw_clr",       "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "nn_lwdn_sfc_clr",                "nn_lwdn_sfc_clr",     "atmos_8xdaily",     "all", .false.,  "none", 2
-#"NN_diag",   "nn_lwup_sfc_clr",                "nn_lwup_sfc_clr",     "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "nn_olr_clr",                     "nn_olr_clr",          "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "nn_tdt_sw_clr",                  "nn_tdt_sw_clr",       "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "nn_swdn_sfc_clr",                "nn_swdn_sfc_clr",     "atmos_8xdaily",     "all", .false.,  "none", 2

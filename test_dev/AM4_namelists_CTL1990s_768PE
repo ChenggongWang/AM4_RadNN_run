@@ -940,7 +940,7 @@
 /
 
  &radiation_driver_diag_nml
-      all_step_diagnostics = .true.,
+      all_step_diagnostics = .false.,
 /
 
  &radiation_driver_nml
@@ -1217,7 +1217,7 @@
        bwood_macinf = 1.
        allow_neg_wl = .true.
        prohibit_negative_water_div = .true.
-       fix_neg_subsurface_wl = .TRUE.
+       !fix_neg_subsurface_wl = .TRUE.
 /
 
  &ssalt_nml

@@ -17,7 +17,7 @@ set echo
 # platform environment
 set npes = 768 # Number of processors used for the model
 set expdir = $cwd # The root directory of the script (WY)
-set cont_scrpt = no_$expdir/run_AM4_CTL1990s_${npes}PE # continue script will be the current script (WY)
+set cont_scrpt = $expdir/run_AM4_CTL1990s_xxx # continue script will be the current script (WY)
 set platform  = stellarcpu_intelmpi_22 # A unique identifier for your platform.
 set Root = /scratch/gpfs/cw55/AM4_NN # The root directory where the release package was extracted.
 source $Root/exec/env.$platform.csh
