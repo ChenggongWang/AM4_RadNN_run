@@ -26,7 +26,7 @@ setenv MAIN_PROGRAM coupler_main.o
 #---------------------------------------------------------------------------------
 # model and experiment
 set model_executable = $Root/exec/am4_xanadu_2021.03.x  # Path to model executable
-set expname = CTL1990s_testNN_${platform}_${npes}PE             # Experiment name
+set expname = CTL1990s_testbasetest_${platform}_${npes}PE             # Experiment name
 set workdir = /scratch/gpfs/cw55/AM4/work/$expname     # Where model is run and model output is put 
 set num_executions = 1 # Number of times the model is run. Each run restarts from previous run.
 set stop_date = 19910301
