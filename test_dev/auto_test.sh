@@ -19,7 +19,7 @@ make
 cd $dev
 pwd
 rm -rf work/*
-sbatch run_AM4_CTL1990s_radnn
+sbatch run_AM4_dev_radnn
 echo end
 exit 
 
