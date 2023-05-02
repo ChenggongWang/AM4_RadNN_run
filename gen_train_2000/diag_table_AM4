@@ -4,7 +4,7 @@ c96L33_am4p0
 #"grid_spec",            -1, "months",  1, "days", "time",
 "atmos_8xdaily",         3,  "hours",  1, "days", "time",
 #"atmos_month",           1, "months",  1, "days", "time",
-"atmos_scalar",          1, "months",  1, "days", "time",
+#"atmos_scalar",          1, "months",  1, "days", "time",
 # #########
 # grid_spec
 # #########
@@ -20,7 +20,7 @@ c96L33_am4p0
 # #############
 # atmos_8xdaily
 # #############
-#"flux",      "t_surf",                         "t_surf",                     "atmos_8xdaily",     "all", .false.,  "none", 2
+"flux",      "t_surf",                         "t_surf",                     "atmos_8xdaily",     "all", .false.,  "none", 2
 #"dynamics",  "ps",                             "ps",                         "atmos_8xdaily",     "all", .false.,  "none", 2
 #"dynamics",  "temp",                           "temp",                       "atmos_8xdaily",     "all", .false.,  "none", 2
 #"dynamics",  "sphum",                          "sphum",                      "atmos_8xdaily",     "all", .false.,  "none", 2
@@ -47,7 +47,6 @@ c96L33_am4p0
 "NN_diag",   "ta",                             "nn_ta",                      "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "sphum",                          "nn_sphum",                   "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "o3",                             "nn_o3",                      "atmos_8xdaily",     "all", .false.,  "none", 2
-"NN_diag",   "tflux",                          "nn_tflux",                   "atmos_8xdaily",     "all", .false.,  "none", 2
 #"NN_diag",   "nn_tdt_lw",                      "nn_tdt_lw",                  "atmos_8xdaily",     "all", .false.,  "none", 2
 #"NN_diag",   "nn_lwdn_sfc",                    "nn_lwdn_sfc",                "atmos_8xdaily",     "all", .false.,  "none", 2
 #"NN_diag",   "nn_lwup_sfc",                    "nn_lwup_sfc",                "atmos_8xdaily",     "all", .false.,  "none", 2
@@ -76,21 +75,8 @@ c96L33_am4p0
 "NN_diag",   "shallow_cloud_fraction",         "shallow_cloud_fraction",     "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "shallow_liquid_content",         "shallow_liquid_content",     "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "shallow_ice_content",            "shallow_ice_content",        "atmos_8xdaily",     "all", .false.,  "none", 2 
-"NN_diag",   "solarfactor",                    "solarfactor",                "atmos_8xdaily",     "all", .false.,  "none", 2
+#"NN_diag",   "solarfactor",                    "solarfactor",                "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "cosz",                           "cosz",                       "atmos_8xdaily",     "all", .false.,  "none", 2
-"NN_diag",   "dayf",                           "dayf",                       "atmos_8xdaily",     "all", .false.,  "none", 2
-"NN_diag",   "rrsun",                          "rrsun",                      "atmos_8xdaily",     "all", .false.,  "none", 2
+#"NN_diag",   "dayf",                           "dayf",                       "atmos_8xdaily",     "all", .false.,  "none", 2
+#"NN_diag",   "rrsun",                          "rrsun",                      "atmos_8xdaily",     "all", .false.,  "none", 2
 "NN_diag",   "solar_constant",                 "solar_constant",             "atmos_8xdaily",     "all", .false.,  "none", 2
-# ############
-# atmos_scalar
-# ############
- "radiation", "rrvco2",         "rrvco2",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvch4",         "rrvch4",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvn2o",         "rrvn2o",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvf11",         "rrvf11",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvf12",         "rrvf12",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvf113",        "rrvf113",        "atmos_scalar", "all", .true., "none", 2
- "radiation", "rrvf22",         "rrvf22",         "atmos_scalar", "all", .true., "none", 2
- "radiation", "solar_constant", "solar_constant", "atmos_scalar", "all", .true., "none", 2
- "tracers",   "ch4_lbc",        "CH4_lbc",        "atmos_scalar", "all", .true., "none", 2
- "tracers",   "n2o_lbc",        "N2O_lbc",        "atmos_scalar", "all", .true., "none", 2
