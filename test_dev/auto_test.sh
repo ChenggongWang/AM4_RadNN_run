@@ -20,6 +20,8 @@ cd $dev
 pwd
 rm -rf work/*
 sbatch run_AM4_dev_radnn
+#rm -rf work_base/*
+#sbatch run_AM4_dev_radnn_base
 echo end
 exit 
 

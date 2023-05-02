@@ -5,7 +5,7 @@
 #SBATCH --threads-per-core=1
 #SBATCH --mem-per-cpu=3000M
 #SBATCH --exclusive
-#SBATCH -t 02:00:00
+#SBATCH -t 00:15:00
 # Sends mail when process begins, and when it ends. 
 # Make sure you define your email
 #SBATCH --mail-type=all
@@ -17,7 +17,7 @@ set echo
 # platform environment
 set npes = 768 # Number of processors used for the model
 set expdir = $cwd # The root directory of the script (WY)
-set cont_scrpt = $expdir/run_AM4_test_2000_radNN # continue script will be the current script (WY)
+set cont_scrpt = $expdir/run_AM4_CTL1990s_xxx # continue script will be the current script (WY)
 set platform  = stellarcpu_intelmpi_22 # A unique identifier for your platform.
 set Root = /scratch/gpfs/cw55/AM4_NN # The root directory where the release package was extracted.
 source $Root/exec/env.$platform.csh
@@ -26,12 +26,12 @@ setenv MAIN_PROGRAM coupler_main.o
 #---------------------------------------------------------------------------------
 # model and experiment
 set model_executable = $Root/exec/am4_xanadu_2021.03.x  # Path to model executable
-set expname = CTL2000_test2000s_nn_${platform}_${npes}PE             # Experiment name
+set expname = CTL2000s_testNNdev_${platform}_${npes}PE_base             # Experiment name
 set workdir = /scratch/gpfs/cw55/AM4/work/$expname     # Where model is run and model output is put 
 set num_executions = 1 # Number of times the model is run. Each run restarts from previous run.
-set stop_date = 20090101
+set stop_date = 20000301
 #---------------------------------------------------------------------------------
-set namelist   = $expdir/AM4_namelists_CTL2000s_${npes}PE # path to namelist file  (contains all namelists)
+set namelist   = $expdir/AM4_namelists_CTL2000s_${npes}PE_base # path to namelist file  (contains all namelists)
 set diagtable  = $expdir/diag_table_AM4   # path to diagnositics table  (specifies fields and files for diagnostic output)
 set fieldtable = $Root/AM4_RadNN_run/field_table  # path to field table (specifies tracers)
 set datatable  = $Root/AM4_RadNN_run/data_table   # path to data table (specifies data files used by data_override)
@@ -42,10 +42,10 @@ set datatable  = $Root/AM4_RadNN_run/data_table   # path to data table (specifie
 set input_data_dir = /scratch/gpfs/hq4324/AM4/input/AM4.input_data 
 #set gridSpec = $Root/mosaics/bf_mosaics_v2.tar 
 #set initCond = $Root/initcond/bf_initcond_v4.tar
-#set sst_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_sst.data.nc
-#set ice_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_ice.data.nc
-set sst_data = /tigress/cw55/work/2022_SST_exp/SST_created/AM4/hadisst_sst.data.nc
-set ice_data = /tigress/cw55/work/2022_SST_exp/SST_created/AM4/hadisst_ice.data.nc
+#set sst_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_sst_ctl.data.nc
+#set ice_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_ice_ctl.data.nc
+set sst_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_sst.data.nc
+set ice_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_ice.data.nc
 #--------------------------------------------------------------------------------
 # The input data should also be put here: 
 # ftp://ftp.gfdl.noaa.gov/pub/projects/CM2.5_and_FLOR/FLOR_input_data.tar.gz
@@ -64,8 +64,8 @@ set time_stamp    = /projects/GEOCLIM/hengquan/bin/time_stamp.csh  # Path to tim
 if ( ! -d $workdir ) then
     mkdir -p $workdir
 endif
-if ( ! -e $expdir/work ) then
-    ln -s $workdir $expdir/work
+if ( ! -e $expdir/work_base ) then
+    ln -s $workdir $expdir/work_base
 endif
 cd $workdir
 foreach d ( INPUT RESTART ASCII POSTP HISTORY )

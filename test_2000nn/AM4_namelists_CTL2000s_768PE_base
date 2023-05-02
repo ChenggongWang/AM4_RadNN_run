@@ -487,8 +487,8 @@
 /
 
  &coupler_nml
-        months = 0,
-        days   = 30,
+        months = 12,
+        days   = 0,
         current_date = 2000,1,1,0,0,0,
         calendar = 'julian'
         dt_atmos = 1800,
@@ -954,7 +954,7 @@
       sw_rad_time_step = 10800,
       use_single_lw_sw_ts = .false.,
       do_rad_nn = .true.
-      do_rad_nn_eff = .true.
+      !do_rad_nn_eff = .true.
       nn_diag_flag = .false.
       nn_diag_speed = .false.
       rad_nn_para_nc = 'RadNN_para_AM4std_LiH4ReluW256.'
