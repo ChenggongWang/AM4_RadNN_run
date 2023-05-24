@@ -1,22 +1,22 @@
 c96L33_am4p0
 101 1 1 0 0 0
 # Simplified diag_table for running AWG AMIP experiments
-#"grid_spec",            -1, "months",  1, "days", "time",
+"grid_spec",            -1, "months",  1, "days", "time",
 "atmos_8xdaily",         3,  "hours",  1, "days", "time",
 #"atmos_month",           1, "months",  1, "days", "time",
 #"atmos_scalar",          1, "months",  1, "days", "time",
 # #########
 # grid_spec
 # #########
-#"dynamics", "grid_lon",  "grid_lon",  "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "grid_lat",  "grid_lat",  "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "grid_lont", "grid_lont", "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "grid_latt", "grid_latt", "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "area",      "area",      "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "bk",        "bk",        "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "pk",        "pk",        "grid_spec", "all", .false.,  "none", 2
-#"flux",     "land_mask", "land_mask", "grid_spec", "all", .false.,  "none", 2
-#"dynamics", "zsurf",     "zsurf",     "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lon",  "grid_lon",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lat",  "grid_lat",  "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_lont", "grid_lont", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "grid_latt", "grid_latt", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "area",      "area",      "grid_spec", "all", .false.,  "none", 2
+"dynamics", "bk",        "bk",        "grid_spec", "all", .false.,  "none", 2
+"dynamics", "pk",        "pk",        "grid_spec", "all", .false.,  "none", 2
+"flux",     "land_mask", "land_mask", "grid_spec", "all", .false.,  "none", 2
+"dynamics", "zsurf",     "zsurf",     "grid_spec", "all", .false.,  "none", 2
 # #############
 # atmos_8xdaily
 # #############

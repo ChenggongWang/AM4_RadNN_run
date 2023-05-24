@@ -17,7 +17,7 @@ set echo
 # platform environment
 set npes = 768 # Number of processors used for the model
 set expdir = $cwd # The root directory of the script (WY)
-set cont_scrpt = $expdir/run_AM4_2000s # continue script will be the current script (WY)
+set cont_scrpt = $expdir/run_AM4_2000s_train # continue script will be the current script (WY)
 set platform  = stellarcpu_intelmpi_22 # A unique identifier for your platform.
 set Root = /scratch/gpfs/cw55/AM4_NN # The root directory where the release package was extracted.
 source $Root/exec/env.$platform.csh
@@ -41,9 +41,7 @@ set datatable  = $Root/AM4_RadNN_run/data_table   # path to data table (specifie
 # Modified to AM4 on tigercpu by WY - Nov. 20, 2018
 set input_data_dir = /scratch/gpfs/hq4324/AM4/input/AM4.input_data 
 #set gridSpec = $Root/mosaics/bf_mosaics_v2.tar 
-#set initCond = $Root/initcond/bf_initcond_v4.tar
-#set sst_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_sst.data.nc
-#set ice_data = /projects/GEOCLIM/hengquan/models_stellar/AM4/hadisst/hadisst_ice.data.nc
+set initCond = $Root/initcond/control_restart.tar
 set sst_data = /tigress/cw55/work/2022_SST_exp/SST_created/AM4/hadisst_sst.data.nc
 set ice_data = /tigress/cw55/work/2022_SST_exp/SST_created/AM4/hadisst_ice.data.nc
 #--------------------------------------------------------------------------------
@@ -100,6 +98,8 @@ if (! -e coupler.res ) then
             ln -s $f .
         endif
     end
+    tar xvf $initCond
+    rm -f coupler.res # remove calendar info. get calendar info from namelists
     rm hadisst_sst.data.nc
     rm hadisst_ice.data.nc
     cp $sst_data hadisst_sst.data.nc
