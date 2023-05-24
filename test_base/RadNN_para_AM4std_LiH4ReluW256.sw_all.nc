@@ -1,1 +1,0 @@
-../test_2000nn/RadNN_para_AM4std_LiH4ReluW256.sw_all.nc
