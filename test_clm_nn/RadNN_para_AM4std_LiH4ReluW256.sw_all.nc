@@ -1,0 +1,1 @@
+RadNN_para_AM4std_LiH4ReluW256.ens_AM4std_sw_all_LiH4W256Relu_EY_D25811.nc
