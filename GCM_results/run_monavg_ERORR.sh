@@ -2,7 +2,7 @@
 #SBATCH --nodes=1 # node count
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1     # cpu-cores per task (>1 if multi-threaded tasks)
-#SBATCH --mem=300G
+#SBATCH --mem=100G
 #SBATCH -t 24:00:00
 # Sends mail when process begins, and when it ends. 
 # Make sure you define your email
@@ -33,7 +33,7 @@ echo $(date +%y%m%d%H%M)
 ROOT=$PWD
 echo "Current dir:"
 echo $ROOT
-for f in $ROOT/*8xdaily.nc
+for f in $ROOT/*8xdaily*.nc
 do 
     echo "$f"
     new_f="$f.monavg_error.nc"
@@ -46,5 +46,6 @@ do
     fi
 
 done
+python -u regrid_monthave_error.py --input_directory "$ROOT"
 echo $(date +%y%m%d%H%M)
 echo END
