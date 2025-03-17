@@ -1,0 +1,288 @@
+#!/bin/csh -f
+#SBATCH --nodes=6 # node count
+#SBATCH --sockets-per-node=2
+#SBATCH --cores-per-socket=64
+#SBATCH --threads-per-core=1
+#SBATCH --mem-per-cpu=3000M
+#SBATCH --exclusive
+#SBATCH -t 02:00:00
+# Sends mail when process begins, and when it ends. 
+# Make sure you define your email
+#SBATCH --mail-type=all
+#SBATCH --mail-user=cw55@princeton.edu
+
+
+set echo 
+#--------------------------------------------------------------------------------
+# platform environment
+set npes = 768 # Number of processors used for the model
+set expdir = $cwd # The root directory of the script (WY)
+set cont_scrpt = $expdir/run_AM4_sstm1KpY_radNN # continue script will be the current script (WY)
+set platform  = stellarcpu_intelmpi_22 # A unique identifier for your platform.
+set Root = /scratch/gpfs/cw55/AM4_NN # The root directory where the release package was extracted.
+source $Root/exec/env.$platform.csh
+module list
+setenv MAIN_PROGRAM coupler_main.o
+#---------------------------------------------------------------------------------
+# model and experiment
+set model_executable = $Root/exec/am4_xanadu_2021.03.x          # Path to model executable
+set expname = CTL2000_sstm1KpY_nn_${platform}_${npes}PE                            # Experiment name
+set workdir = /scratch/gpfs/cw55/AM4/work/$expname              # Where model is run and model output is put 
+set num_executions = 1                                          # Number of times the model is run. Each run restarts from previous run.
+set stop_date = 20100101
+#---------------------------------------------------------------------------------
+set namelist   = $expdir/AM4_namelists_CTL2000s_${npes}PE       # path to namelist file  (contains all namelists)
+set diagtable  = $expdir/diag_table_AM4                         # path to diagnositics table  (specifies fields and files for diagnostic output)
+set fieldtable = $Root/AM4_RadNN_run/field_table                # path to field table (specifies tracers)
+set datatable  = $Root/AM4_RadNN_run/data_table                 # path to data table (specifies data files used by data_override)
+#--------------------------------------------------------------------------------
+# The gaea locations of the input data sets are listed below
+# Modified to Tiger locations by GAV - 31-May-2017
+# Modified to AM4 on tigercpu by WY - Nov. 20, 2018
+set input_data_dir = /scratch/gpfs/hq4324/AM4/input/AM4.input_data 
+#set gridSpec = $Root/mosaics/bf_mosaics_v2.tar 
+set initCond = $expdir/initcond_restart.tar
+set sst_data = $expdir/hadisst_sst.1980_2010.m1KpY.nc
+set ice_data = $expdir/hadisst_ice.clm.1980_2010.nc
+#--------------------------------------------------------------------------------
+# The input data should also be put here: 
+# ftp://ftp.gfdl.noaa.gov/pub/projects/CM2.5_and_FLOR/FLOR_input_data.tar.gz
+# ftp://nomads.gfdl.noaa.gov/users/Ming.Zhao/AM4Documentation/GFDL-AM4.0/inputData/
+#--------------------------------------------------------------------------------
+# post-processing tools
+set FreRoot = /projects/GEOCLIM/hengquan/fre-nctools/build_stellarAMD/intel2019mpi/stellarAMD/bin # root of the fre-nctools
+set mppnccombine  = $FreRoot/mppnccombine # Path to mppnccombine
+set landnccombine = $FreRoot/combine-ncc # Path to landnccombine
+set land_decompress = $FreRoot/decompress-ncc # Path to decompress-ncc
+set fregrid       = $FreRoot/fregrid_parallel # Path to fregrid
+set time_stamp    = /projects/GEOCLIM/hengquan/bin/time_stamp.csh  # Path to timestamp.csh
+
+#--------------------------------------------------------------------------------
+# setup directory structure
+if ( ! -d $workdir ) then
+    mkdir -p $workdir
+endif
+if ( ! -e $expdir/work ) then
+    ln -s $workdir $expdir/work
+endif
+cd $workdir
+foreach d ( INPUT RESTART ASCII POSTP HISTORY )
+    if ( ! -d $d ) then
+        mkdir $d
+    endif
+end
+#--------------------------------------------------------------------------------
+# get input data and executable
+if ( ! -f input.nml ) then
+    cp $namelist   input.nml
+endif
+if ( ! -f diag_table ) then
+    cp $diagtable  diag_table
+endif
+if ( ! -f field_table ) then
+    cp $fieldtable field_table
+endif
+if ( ! -f data_table ) then
+    cp $datatable  data_table
+endif
+if ( ! -f $model_executable:t ) then
+    cp $model_executable .
+endif
+#--------------------------------------------------------------------------------
+# link the input data files
+cd $workdir/INPUT
+# WY: get input data and initial condition files for the first run.
+if (! -e coupler.res ) then
+    foreach f ($input_data_dir/*) # link the input data files
+        if ( ! -e $f:t ) then
+            ln -s $f .
+        endif
+    end
+    tar xvf $initCond
+    rm -f coupler.res # remove calendar info. get calendar info from namelists
+    rm hadisst_sst.data.nc
+    rm hadisst_ice.data.nc
+    cp $sst_data hadisst_sst.data.nc
+    cp $ice_data hadisst_ice.data.nc
+endif
+cp $expdir/RadNN_para_AM4std_LiH4ReluW256.l*.nc .  
+cp $expdir/RadNN_para_AM4std_LiH4ReluW256.s*.nc .
+
+#--------------------------------------------------------------------------------
+# set the inital end_date_name and irun
+cd $workdir
+if ( -f ASCII/time_stamp.out ) then
+    cd ASCII
+    set end_date_name = `$time_stamp -ef digital`
+    cd $workdir
+else
+    set end_date_name = 01000101
+endif
+set irun = 1
+#--------------------------------------------------------------------------------
+# start the model running and post-processing loop
+while ( $irun <= $num_executions )
+if ( $end_date_name >= $stop_date ) then
+    echo "model has reached its end date $stop_date"
+    #cgw calling monavg for 8xdaily file
+    cd $workdir/POSTP
+    sbatch run_monavg.sh
+    exit 0
+endif
+#--------------------------------------------------------------------------------
+# run the model with srun GAV 31-May-2017
+srun -n $npes ./$model_executable:t
+if ($status != 0) then
+  echo "Error in execution of $cwd/$model_executable:t"
+  exit 1
+endif
+#--------------------------------------------------------------------------------
+set date_name = `$time_stamp -bf digital`
+# GAV: Sets the end of run name
+set end_date_name = `$time_stamp -ef digital`
+foreach outfile (logfile.*.out diag_integral.out time_stamp.out)
+  mv $outfile $date_name.$outfile
+end
+#--------------------------------------------------------------------------------
+# combine distributed diagnostic files and remove the uncombined files
+# no need to add time stamp to the file names for AM4
+foreach ncfile (`/bin/ls *.nc.0000`)
+  $mppnccombine -64 -h 16384 -m $ncfile:r
+  if ($status == 0) then
+    rm -f $ncfile:r.[0-9][0-9][0-9][0-9]
+    #mv $ncfile:r $date_name.$ncfile:r # no need for AM4
+  else
+    echo "Error in execution of $mppnccombine while working on $ncfile:r"
+    exit 1
+  endif
+end
+#--------------------------------------------------------------------------------
+# combine the un-structured (or compressed) distributed diagnostic files and remove the uncombined files
+# no need to add time stamp to the file names for AM4
+foreach ncfile (`/bin/ls *.nc.0001`)
+  $landnccombine $ncfile:r.[0-9][0-9][0-9][0-9] $ncfile:r
+  if ($status == 0) then
+    rm -f $ncfile:r.[0-9][0-9][0-9][0-9]
+    # convert the un-structured (or compressed) files to structured (decompressed) files
+    $land_decompress $ncfile:r $ncfile:r.decompressed
+    if ($status == 0) then
+        mv $ncfile:r.decompressed $ncfile:r
+    else
+        echo "Error in execution of $land_decompress while working on $ncfile:r"
+        exit 1
+    endif
+  else
+    echo "Error in execution of $landnccombine while working on $ncfile:r"
+    exit 1
+  endif
+end
+#--------------------------------------------------------------------------------
+# Add the time stamp to remaining diagnostic files (those not distributed), no need for AM4
+#mv atmos_scalar.nc $date_name.atmos_scalar.nc
+#mv ocean_scalar.nc $date_name.ocean_scalar.nc
+#--------------------------------------------------------------------------------
+cd $workdir/RESTART
+#--------------------------------------------------------------------------------
+# combine regular restart files and remove the uncombined files
+foreach ncfile (`/bin/ls *.nc.0000`)
+  $mppnccombine -64 -h 16384 -m $ncfile:r
+  if ($status == 0) then
+    rm -f $ncfile:r.[0-9][0-9][0-9][0-9]
+  else
+    echo "Error in execution of $mppnccombine while working on $ncfile:r"
+    exit 1
+  endif
+end
+#--------------------------------------------------------------------------------
+# combine compressed restart files and remove the uncombined files
+foreach ncfile (`/bin/ls *.nc.0001`)
+  $landnccombine $ncfile:r.[0-9][0-9][0-9][0-9] $ncfile:r
+  if ($status == 0) then
+    rm -f $ncfile:r.[0-9][0-9][0-9][0-9]
+  else
+    echo "Error in execution of $landnccombine while working on $ncfile:r"
+    exit 1
+  endif
+end
+#--------------------------------------------------------------------------------
+# Interpolate diagnostic data to lat-lon grid
+cd $workdir
+set diagFiles = (`/bin/ls -1 $date_name.*.tile1.nc | grep -v grid_spec | grep -v horizontal_grid.tile`)
+set latlonfiles = ()
+# copy the grid files needed in the interpolation from the INPUT dir if they are not in the $workdir
+if ( !  -f  C96_mosaic.nc ) then
+    cp INPUT/C96_mosaic.nc . 
+endif
+foreach grid_file (INPUT/C96_grid.tile?.nc)
+    if ( ! -f $grid_file:t ) then
+        cp $grid_file $grid_file:t
+    endif
+end
+foreach File ($diagFiles)
+  set variables = (`ncdump -h $File | grep 'grid_yt, grid_xt' | awk '{print $2}' | cut -d\( -f1`)
+  set variables = `echo $variables |sed 's/ /,/g'`
+  set basename = $File:r:r
+  srun -n 32 $fregrid --input_mosaic C96_mosaic.nc \
+                      --input_file $basename \
+                      --interp_method conserve_order1 \
+                      --remap_file fregrid_remap_file \
+                      --nlon 288 --nlat 180 \
+                      --scalar_field $variables
+  if ($status != 0) then
+    echo "Error in execution of fregrid while working on $basename"
+    exit 1
+  endif
+  set latlonfiles = ($latlonfiles $basename.nc)
+  # cgw 
+  #cdo monavg $basename.nc $basename.monavg.nc
+end
+unset echo
+echo 'Fields interpolated to lat-lon grid exist in these files:'
+foreach File ($latlonfiles)
+  ls -l $cwd/$File
+end
+set echo
+
+# GAV
+# 
+# This copies History, Postprocessed and Ascii output to their directories
+#
+mv $date_name.*.tile[123456].nc HISTORY/.
+mv $date_name.*.nc POSTP/.
+cp $date_name.time_stamp.out ASCII/time_stamp.out # keep a copy of the time_stamp.out in the ASCII dir for use in the next loop
+mv $date_name.*.out ASCII/.
+#
+#--------------------------------------------------------------------------------
+# Prepare to run the model again
+/bin/rm INPUT/*.res \
+        INPUT/*.res.nc \
+        INPUT/*.res.nc.[0-9][0-9][0-9][0-9] \
+        INPUT/*.res.tile?.nc \
+        INPUT/*.res.tile?.nc.[0-9][0-9][0-9][0-9]
+#
+# GAV: This saves the restart file in the RESTART directory,
+# with the date of the end of current segment as name
+cd $workdir/RESTART 
+tar cf $end_date_name.tar *.res \
+   *.res.nc \
+   *.res.nc.[0-9][0-9][0-9][0-9] \
+   *.res.tile?.nc \
+   *.res.tile?.nc.[0-9][0-9][0-9][0-9]
+cd $workdir
+#
+mv RESTART/*.res \
+   RESTART/*.res.nc \
+   RESTART/*.res.nc.[0-9][0-9][0-9][0-9] \
+   RESTART/*.res.tile?.nc \
+   RESTART/*.res.tile?.nc.[0-9][0-9][0-9][0-9] \
+   INPUT
+#--------------------------------------------------------------------------------
+@ irun ++
+end
+echo 'run script successfully completed'
+#
+# GAV Submit next run
+echo 'next script being submitted'
+cd $expdir
+sbatch $cont_scrpt
+exit 0
