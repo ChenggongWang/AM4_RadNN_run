@@ -7,7 +7,6 @@ import psutil
 import gc
 ori_var = [
  'lwdn_sfc',
- # 'lwup_sfc',
  'swdn_sfc',
  'swup_sfc',
  'olr',
@@ -75,12 +74,12 @@ if __name__ == '__main__':
             err = nnda - da
             del da, nnda
             ds_new[f'bias_{svar}'] = err.groupby('time.month').mean('time')
-            ds_new[f'mse_{svar}']  = abs(err).groupby('time.month').mean('time')
+            ds_new[f'mae_{svar}']  = abs(err).groupby('time.month').mean('time')
             ds_new[f'rmse_{svar}'] = ((err**2).groupby('time.month').mean('time'))**0.5
 
             err_adj = xr.where(lwup_sfc<0,0,err)
             ds_new[f'adj_bias_{svar}'] = err_adj.groupby('time.month').mean('time')
-            ds_new[f'adj_mse_{svar}']  = abs(err_adj).groupby('time.month').mean('time')
+            ds_new[f'adj_mae_{svar}']  = abs(err_adj).groupby('time.month').mean('time')
             ds_new[f'adj_rmse_{svar}'] = ((err_adj**2).groupby('time.month').mean('time'))**0.5
             print(f' done. Use time: {time.time() - sta_time: 3.0f}s')
             del err, err_adj
@@ -88,8 +87,14 @@ if __name__ == '__main__':
     ds_new = ds_new.rename({'month':'time'}) 
     new_time = xr.concat([_[1][0] for _ in ds.time.groupby('time.month')],dim='time')
     ds_new['time'] = new_time
-    ds_new.to_netcdf(f"{filename}.monavg_error.nc")
-    file_stats_new = os.stat(f"{filename}.monavg_error.nc")
+    ds_new['grid_xt'] = ds['grid_xt']
+    ds_new['grid_yt'] = ds['grid_yt']
+    if 'tile' in filename:
+        new_filename = f"{filename[:-9]}.monavg_error.{filename[-8:]}"
+    else:
+        new_filename = f"{filename[:-3]}.monavg_error.nc"
+    ds_new.to_netcdf(new_filename)
+    file_stats_new = os.stat(new_filename)
     used_time = time.time() - zero_time  
     print(f'    | New Size: {file_stats_new.st_size / (1024**3):5.1f} GB | timer: {used_time:4.0f}s')
     os.system(f'rm -f  /dev/shm/{filename}')
